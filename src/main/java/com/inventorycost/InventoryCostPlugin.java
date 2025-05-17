@@ -1,7 +1,7 @@
-package com.inventorycost;
+package net.runelite.client.plugins.inventorycosttracker;
 
+import com.google.inject.Inject;
 import com.google.inject.Provides;
-import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.plugins.Plugin;
@@ -10,18 +10,17 @@ import net.runelite.client.ui.overlay.OverlayManager;
 
 @Slf4j
 @PluginDescriptor(
-	name = "Inventory Cost Tracker"
+	name = "Inventory Cost Tracker",
+	description = "Tracks the real-time cost of the players inventory/equipment",
+	tags = {"overlay", "tracker", "calculator", "gp", "value", "check", "worth"}
 )
 public class InventoryCostPlugin extends Plugin
 {
 	@Inject
-	private InventoryCostConfig config;
+	private OverlayManager overlayManager;
 
 	@Inject
 	private InventoryCostOverlay overlay;
-
-	@Inject
-	private OverlayManager overlayManager;
 
 	@Override
 	protected void startUp() throws Exception

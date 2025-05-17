@@ -1,5 +1,6 @@
-package com.inventorycost;
+package net.runelite.client.plugins.inventorycosttracker;
 
+import com.google.inject.Inject;
 import net.runelite.api.*;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.overlay.*;
@@ -8,30 +9,20 @@ import net.runelite.client.ui.overlay.components.LineComponent;
 import net.runelite.client.ui.overlay.components.TitleComponent;
 
 import java.awt.*;
-import javax.inject.Inject;
 
 public class InventoryCostOverlay extends OverlayPanel
 {
+	@Inject
+    private Client client;
 
-    private static final int PANEL_WIDTH_OFFSET = 10;
+	@Inject
+    private ItemManager itemManager;
 
-    private int SAVED_COST;
+	@Inject
+	private InventoryCostConfig config;
 
-    private final Client client;
-
-    private final InventoryCostConfig config;
-
-    private final ItemManager itemManager;
-
-    @Inject
-    private InventoryCostOverlay(Client client, InventoryCostConfig config, ItemManager itemManager)
-    {
-        this.client = client;
-        this.config = config;
-        this.itemManager = itemManager;
-
-        this.SAVED_COST = 0;
-    }
+	private int SAVED_COST = 0;
+	private final int PANEL_WIDTH_OFFSET = 10;
 
     @Override
     public Dimension render(Graphics2D graphics)
@@ -47,7 +38,7 @@ public class InventoryCostOverlay extends OverlayPanel
         panelComponent.getChildren().add(
                 LineComponent.builder()
                         .left("CURRENT")
-                        .right(formatCostText(calculateTotalCost()))
+                        .right(setFormattedText(calculateTotalCost()))
                         .build());
 
         if (config.saveCost())
@@ -57,7 +48,7 @@ public class InventoryCostOverlay extends OverlayPanel
                 panelComponent.getChildren().add(
                         LineComponent.builder()
                                 .left("SAVED")
-                                .right(formatCostText(SAVED_COST))
+                                .right(setFormattedText(SAVED_COST))
                                 .build());
 
                 panelComponent.getChildren().add(
@@ -69,13 +60,13 @@ public class InventoryCostOverlay extends OverlayPanel
                 panelComponent.getChildren().add(
                         LineComponent.builder()
                                 .left("DIFF")
-                                .right(setDifferenceCostText())
-                                .rightColor(setDifferenceCostColor())
+                                .right(setCostDifferenceText())
+                                .rightColor(setCostDifferenceColor())
                                 .build());
 
                 panelComponent.setPreferredSize(new Dimension(maxWidth + PANEL_WIDTH_OFFSET, 0));
             } else {
-                saveCost();
+                setSaveCost();
             }
         } else {
             SAVED_COST = -1;
@@ -157,7 +148,7 @@ public class InventoryCostOverlay extends OverlayPanel
 
         Item[] items = itemContainer.getItems();
 
-        if (items == null)
+        if (items == null || items.length == 0)
         {
             return 0;
         }
@@ -167,7 +158,7 @@ public class InventoryCostOverlay extends OverlayPanel
         for (int i = 0; i < items.length; i++)
         {
             Item item = items[i];
-            int itemPrice = getItemPrice(item.getId());
+            int itemPrice = itemManager.getItemPrice(item.getId());
 
             if (item.getQuantity() > 0)
             {
@@ -182,16 +173,16 @@ public class InventoryCostOverlay extends OverlayPanel
         return totalCost;
     }
 
-    private int calculateEquipmentSlotCost(int index)
+    private int calculateEquipmentSlotCost(int slotIndex)
     {
-        Item[] items = client.getItemContainer(InventoryID.EQUIPMENT).getItems();
+		ItemContainer itemContainer  = client.getItemContainer(InventoryID.EQUIPMENT);
 
-        if (items == null)
-        {
-            return 0;
-        }
+		if (itemContainer == null)
+		{
+			return 0;
+		}
 
-        Item slotItem = items[index];
+        Item slotItem = itemContainer.getItem(slotIndex);
 
         if (slotItem == null)
         {
@@ -200,10 +191,10 @@ public class InventoryCostOverlay extends OverlayPanel
 
         if (slotItem.getQuantity() > 0)
         {
-            return getItemPrice(slotItem.getId()) * slotItem.getQuantity();
+            return itemManager.getItemPrice(slotItem.getId()) * slotItem.getQuantity();
         }
 
-        return getItemPrice(slotItem.getId());
+        return itemManager.getItemPrice(slotItem.getId());
     }
 
     private int calculateSaveCostDifference()
@@ -211,26 +202,16 @@ public class InventoryCostOverlay extends OverlayPanel
         return calculateTotalCost() - SAVED_COST;
     }
 
-    private void saveCost()
-    {
-        SAVED_COST = calculateTotalCost();
-    }
-
-    private int getItemPrice(int id)
-    {
-        return itemManager.getItemPrice(id);
-    }
-
-    private String setDifferenceCostText()
+    private String setCostDifferenceText()
     {
         if (SAVED_COST < calculateTotalCost()) {
-            return "+" + formatCostText(calculateSaveCostDifference());
+            return "+" + setFormattedText(calculateSaveCostDifference());
         } else  {
-            return formatCostText(calculateSaveCostDifference());
+            return setFormattedText(calculateSaveCostDifference());
         }
     }
 
-    private Color setDifferenceCostColor()
+    private Color setCostDifferenceColor()
     {
         if (SAVED_COST > calculateTotalCost()) {
             return Color.RED;
@@ -241,9 +222,14 @@ public class InventoryCostOverlay extends OverlayPanel
         }
     }
 
-    private String formatCostText(int value)
+    private String setFormattedText(int value)
     {
         Double numParsed = Double.parseDouble(Integer.toString(value));
         return String.format("%,.0f", numParsed);
     }
+
+	private void setSaveCost()
+	{
+		SAVED_COST = calculateTotalCost();
+	}
 }
