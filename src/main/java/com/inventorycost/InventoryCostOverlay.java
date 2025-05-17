@@ -12,17 +12,17 @@ import java.awt.*;
 
 public class InventoryCostOverlay extends OverlayPanel
 {
-	@Inject
+    @Inject
     private Client client;
-
-	@Inject
+	
+    @Inject
     private ItemManager itemManager;
-
-	@Inject
-	private InventoryCostConfig config;
-
-	private int SAVED_COST = 0;
-	private final int PANEL_WIDTH_OFFSET = 10;
+	
+    @Inject
+    private InventoryCostConfig config;
+	
+    private int SAVED_COST = 0;
+    private final int PANEL_WIDTH_OFFSET = 10;
 
     @Override
     public Dimension render(Graphics2D graphics)
@@ -175,12 +175,12 @@ public class InventoryCostOverlay extends OverlayPanel
 
     private int calculateEquipmentSlotCost(int slotIndex)
     {
-		ItemContainer itemContainer  = client.getItemContainer(InventoryID.EQUIPMENT);
+	ItemContainer itemContainer  = client.getItemContainer(InventoryID.EQUIPMENT);
 
-		if (itemContainer == null)
-		{
-			return 0;
-		}
+	if (itemContainer == null)
+	{
+	    return 0;
+	}
 
         Item slotItem = itemContainer.getItem(slotIndex);
 
@@ -228,8 +228,8 @@ public class InventoryCostOverlay extends OverlayPanel
         return String.format("%,.0f", numParsed);
     }
 
-	private void setSaveCost()
-	{
-		SAVED_COST = calculateTotalCost();
-	}
+    private void setSaveCost()
+    {
+	SAVED_COST = calculateTotalCost();
+    }
 }
