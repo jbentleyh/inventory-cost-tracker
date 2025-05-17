@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.inventorycosttracker;
+package com.inventorycost;
 
 import com.google.inject.Inject;
 import net.runelite.api.*;
