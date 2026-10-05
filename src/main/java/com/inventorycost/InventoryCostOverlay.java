@@ -21,7 +21,7 @@ public class InventoryCostOverlay extends OverlayPanel
     @Inject
     private InventoryCostConfig config;
 	
-    private int SAVED_COST = 0;
+    private long SAVED_COST = 0;
     private final int PANEL_WIDTH_OFFSET = 10;
 
     @Override
@@ -75,9 +75,9 @@ public class InventoryCostOverlay extends OverlayPanel
         return super.render(graphics);
     }
 
-    private int calculateTotalCost()
+    private long calculateTotalCost()
     {
-        int totalCost = 0;
+        long totalCost = 0;
 
         totalCost += calculateItemsCost(client.getItemContainer(InventoryID.INVENTORY));
 
@@ -139,7 +139,7 @@ public class InventoryCostOverlay extends OverlayPanel
         return totalCost;
     }
 
-    private int calculateItemsCost(ItemContainer itemContainer)
+    private long calculateItemsCost(ItemContainer itemContainer)
     {
         if (itemContainer == null)
         {
@@ -153,12 +153,12 @@ public class InventoryCostOverlay extends OverlayPanel
             return 0;
         }
 
-        int totalCost = 0;
+        long totalCost = 0;
 
         for (int i = 0; i < items.length; i++)
         {
             Item item = items[i];
-            int itemPrice = itemManager.getItemPrice(item.getId());
+            long itemPrice = itemManager.getItemPrice(item.getId());
 
             if (item.getQuantity() > 0)
             {
@@ -173,7 +173,7 @@ public class InventoryCostOverlay extends OverlayPanel
         return totalCost;
     }
 
-    private int calculateEquipmentSlotCost(int slotIndex)
+    private long calculateEquipmentSlotCost(int slotIndex)
     {
 	ItemContainer itemContainer  = client.getItemContainer(InventoryID.EQUIPMENT);
 
@@ -197,7 +197,7 @@ public class InventoryCostOverlay extends OverlayPanel
         return itemManager.getItemPrice(slotItem.getId());
     }
 
-    private int calculateSaveCostDifference()
+    private long calculateSaveCostDifference()
     {
         return calculateTotalCost() - SAVED_COST;
     }
@@ -222,9 +222,9 @@ public class InventoryCostOverlay extends OverlayPanel
         }
     }
 
-    private String setFormattedText(int value)
+    private String setFormattedText(long value)
     {
-        Double numParsed = Double.parseDouble(Integer.toString(value));
+        Double numParsed = Double.parseDouble(Long.toString(value));
         return String.format("%,.0f", numParsed);
     }
 
